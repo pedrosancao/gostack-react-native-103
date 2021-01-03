@@ -28,6 +28,10 @@ import {
   FoodPricing,
 } from './styles';
 
+interface FoodSearchParams {
+  q?: string;
+  category?: number;
+}
 interface Food {
   id: number;
   name: string;
@@ -36,6 +40,8 @@ interface Food {
   thumbnail_url: string;
   formattedPrice: string;
 }
+
+type FoodResponse = Omit<Food, 'formattedPrice'>;
 
 interface Category {
   id: number;
@@ -59,7 +65,20 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      // Load Foods from API
+      const params: FoodSearchParams = {};
+      if (searchValue) {
+        params.q = searchValue;
+      }
+      if (selectedCategory) {
+        params.category = selectedCategory;
+      }
+      const { data } = await api.get<FoodResponse[]>('/foods', { params });
+      setFoods(
+        data.map(food => ({
+          ...food,
+          formattedPrice: `${formatValue(food.price)}`,
+        })),
+      );
     }
 
     loadFoods();
@@ -67,14 +86,15 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadCategories(): Promise<void> {
-      // Load categories from API
+      const { data } = await api.get<Category[]>('/categories');
+      setCategories(data);
     }
 
     loadCategories();
   }, []);
 
   function handleSelectCategory(id: number): void {
-    // Select / deselect category
+    setSelectedCategory(value => (value === id ? undefined : id));
   }
 
   return (
