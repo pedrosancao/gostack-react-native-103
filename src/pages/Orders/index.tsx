@@ -27,12 +27,20 @@ interface Food {
   thumbnail_url: string;
 }
 
+type FoodResponse = Omit<Food, 'formattedPrice'>;
+
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Food[]>([]);
 
   useEffect(() => {
     async function loadOrders(): Promise<void> {
-      // Load orders from API
+      const { data } = await api.get<FoodResponse[]>('/orders');
+      setOrders(
+        data.map(food => ({
+          ...food,
+          formattedPrice: `${formatValue(food.price)}`,
+        })),
+      );
     }
 
     loadOrders();
