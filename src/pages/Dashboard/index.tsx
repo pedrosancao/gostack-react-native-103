@@ -29,8 +29,8 @@ import {
 } from './styles';
 
 interface FoodSearchParams {
-  q?: string;
-  category?: number;
+  name_like?: string;
+  category_like?: number;
 }
 interface Food {
   id: number;
@@ -67,10 +67,10 @@ const Dashboard: React.FC = () => {
     async function loadFoods(): Promise<void> {
       const params: FoodSearchParams = {};
       if (searchValue) {
-        params.q = searchValue;
+        params.name_like = searchValue;
       }
       if (selectedCategory) {
-        params.category = selectedCategory;
+        params.category_like = selectedCategory;
       }
       const { data } = await api.get<FoodResponse[]>('/foods', { params });
       setFoods(
